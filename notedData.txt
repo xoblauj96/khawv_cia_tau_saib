@@ -1,0 +1,11 @@
+SELECT start_at AT TIME ZONE '(GMT+7)' AS timestamp_utc
+FROM pos_session where name='POS/07185'
+// {
+//     session_no= Session name,
+//     pos= Point of sale,
+//     branch= Branch,
+//     start_at= Open date time,
+//     stop_at= End date time,
+//     total= Total amount of this session,
+//     orders= Order count
+// }

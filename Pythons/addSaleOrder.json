@@ -1,0 +1,23 @@
+{
+    "sales_order": "",
+    "sales_dt": "",
+    "seq_id": "",
+    "inv_no": "",
+    "inv_dt": "",
+    "workplate": "",
+    "sales_ty": "",
+    "cust_id": "",
+    "cust_nm": "",
+    "order_lines": [
+        {
+            "barcode": "",
+            "prod_nm": "",
+            "qty": "",
+            "unitprice": "",
+            "amt": "",
+            "dc_amt": "",
+            "vat_amt": "",
+            "tot": ""
+        }
+    ]
+}

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <body>
+
+        <h1>My First Google Map</h1>
+        <input type="radio" name="ROADMAP" id="ROADMAP"> ROADMAP
+        <input type="radio" name="SATELLITE" id="SATELLITE"> SATELLITE
+        <input type="radio" name="HYBRID" id="HYBRID"> HYBRID
+        <input type="radio" name="TERRAIN" id="TERRAIN"> TERRAIN
+
+        <div id="googleMap" style="width:100%;height:500px;"></div>
+
+        <script>
+// Check if the browser supports geolocation
+
+function getCurrentAddress(){
+    return new Promise((resolve,reject)=>{
+        if (navigator.geolocation) {
+        // Get the current position
+        navigator.geolocation.getCurrentPosition(function (position) {
+                // Extract latitude and longitude from the position object
+                currentLat = position.coords.latitude;
+                currentLng = position.coords.longitude;
+
+                // Log or use the coordinates as needed
+                console.log("Current Latitude:", currentLat);
+                console.log("Current Longitude:", currentLng);
+                resolve(position)
+            },
+            function (error) {
+            // Handle errors, if any
+            reject("Error occurred during async operation");
+            console.error("Error getting geolocation:", error.message);
+            }
+        );
+        } else {
+        // Browser doesn't support geolocation
+        reject("Geolocation is not supported by this browser.");
+        console.error("Geolocation is not supported by this browser.");
+        }
+    })
+}
+
+
+
+async function myMap() {
+    
+    let position = await getCurrentAddress();
+    const lat  = position.coords.latitude;
+    const lng = position.coords.longitude;
+   
+
+var myCenter = { lat, lng};
+
+var mapProp= {
+  center:new google.maps.LatLng(lat,lng),
+  zoom:9,
+  mapTypeId: google.maps.MapTypeId.SATELLITE,
+};
+var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+var marker = new google.maps.Marker({
+    position: myCenter,
+    // animation:google.maps.Animation.BOUNCE,
+    icon:''
+});
+marker.setMap(map);
+var infowindow = new google.maps.InfoWindow({
+  content:"My home is here"
+});
+google.maps.event.addListener(marker, 'click', ()=> {
+
+marker.setMap(map);
+  infowindow.open(map,marker);
+});
+
+var currentMarker;
+google.maps.event.addListener(map, 'click', function(event) {
+    if( currentMarker){
+        currentMarker.setMap(null);
+    }
+ currentMarker = placeMarker(map, event.latLng);
+});
+
+function placeMarker(map, location) {
+  var marker = new google.maps.Marker({
+    position: location,
+    icon: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAAAXNSR0IArs4c6QAABQBJREFUaEPtmWuIVVUUx3/rOGMpNlmalTU1I6W9U2ccKSIhDAemF0Uv5qMwYWDdxzgZid2QgnnccweMMIk+BAWlUlGWIhkFvbQ0ew1JZkmlPbRmojSde1ez73VsxrnnnH3OvRMI7q9nrf/6//faa++19xFO8CEnOH9OCjiWwcVaxViaUG4ArgZqUE7Pfxd6gd3ADpTNVLKeDvmzHNkvPQNL9GKyPATcC4y3JPU38AJKOxn5xtKnqFl0AS06ngk8hhJDqIhI4giQQUmRkYNRMKIJSOh0YB1wRZSgI3yUz4A7omQjvICYzsZhA3BWWcgPgii/IDTiyvYwuOEEtOlU+tkCnBcmiLWtsm+gwOfQIT/Y+tgLiOs4hHeBeltwlNv4h7cYSzXCPJRmHK4L8N9KFdeTkkM2cewFxPQpHBbZgB6zURaRkVXDfFq1iX5W4zDVB+tJXFlsE8tOQEJnoXyM4NiADrHpwZXLRvi06fn05+vocg+8LA6z6RJT3L7DTkBc1yHcHgRWZHc5REbGFfVr1VqybEGY7IG7BlfuCooZLMDM1hG+jzD7JvY2XKnzJBHXhQjPeGahggvokJ/8RAQLiGsSoasoiLIbhwagDWXJcTaKw3y6ZLMngTt1DNXsBKZ52MRxpbs0AQl9E2j0AGnHlaWk1KGXZP5ULhRnD8KDpGVT0BIgoZ1Aq4fdG7jSVKqA/cCZRUEcbqJL1g/71qKVrBbTItiNhN4CvOqR4d/IiO+B6b+EkjoZ5VdPJjnq6JZtdkw9rJJal9/hvIYyiYwc8PocJOASlJ5RFRDXeoStPpMwA1dMnRQd/gISavr6T33Ab8aV10vKgN8SKgDPxJUd0QTEdBoOuzwJCp2kpa0kATFN45DwyXIt3fJdNAFL9QwO47n+yLGLH5nBGslGEpHSCnrZiVDr6V/JRNrF3OgiLCHjEtefEab4EFyIK89GEpDUFpSnfQp4Hxk51w87+CBL6iaU+T4gBxhDA53ivdSKOce0Jl+83q2E8dqIK15nUB41WEBCHx0wTAXM8JdU0Gjdxye0GmUDwshGb3ig5biyorQMtOpccnxosUT2otxHRl7ztY3rrcAqhHMCMYV60vJJaQJMm9DHnhC3sPeA5xHe4WDeD07hQmAe0IxwbSDxgsEeXGpAtDQBxjuhTwAPWwYul9kKXFkeBBZcA4Wd6KKBd5+vI7bUQRyKfc+SYzrd8m2Qs52Agohol5ogBsW+Cy+RlrttXO0FJHUOykdWO5dNZG8bs+brbJ9X7AUUamFt/gFqNEeOF+mWe2xDhBNg3kH7+QJhrG2AUHbKYZRLbdb+IG44AYUs2BxsoXgPMV6GK4+HcQ4vwDRgfXwQ6oHLhpGynb+YG+o2F7kgW/Uqsvk+pjxLySwd8+KXkc9ttA61CZ+BQe+4LkPw7VOsyQiPkBZzWIYe0QWYFuMPXsbBXMpLGa9QNbCzpSQXBSS6ABPtfp3Aqbw/8K/gyijBUb6in2tYKX2R/CPXwNBopq938k/u4f4XCPvJ0hBmyywmsrQM/FcPDQgbgYlWM6n8jsONQa2yDVZ5BBTOh1kI5vY2yTdwgfwC0uL3lGLDPW9TPgEGLaYzj/5+OrsoA/MHpvAbyfOZxJr5UcPyCjCgrTqFHM8BC44j8zY5mumWvWFJ+tmXX4CJVrjFPWCacBTzSp3hNFZG3Sr/fwHlnOIArNHJwEkB9jPwL5ylXkDIoLz8AAAAAElFTkSuQmCC',
+    map: map
+  });
+  var infowindow = new google.maps.InfoWindow({
+    content: 'Latitude: ' + location.lat() +
+    '<br>Longitude: ' + location.lng()
+  });
+  infowindow.open(map,marker);
+  return marker;
+}
+
+}
+</script>
+
+        <script
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCAGBIkzwj6raf2qRXrBTEWhLrKWeSqK2E&callback=myMap"></script>
+
+    </body>
+</html>
